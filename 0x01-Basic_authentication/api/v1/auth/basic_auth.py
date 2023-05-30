@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ Module of Authentication"""
 from .auth import Auth
+from typing import TypeVar
 
 
 class BasicAuth(Auth):
@@ -42,3 +43,32 @@ class BasicAuth(Auth):
         ):
             return (None, None)
         return tuple(decoded_base64_authorization_header.split(":", 1))
+
+    def user_object_from_credentials(
+        self, user_email: str, user_pwd: str
+    ) -> TypeVar("User"):
+        """user_object_from_credentials"""
+        if (
+            user_email is None
+            or type(user_email) is not str
+            or user_pwd is None
+            or type(user_pwd) is not str
+        ):
+            return None
+        from models.user import User
+
+        users = User.search({"email": user_email})
+        if users == []:
+            return None
+        user = users[0]
+        if not user.is_valid_password(user_pwd):
+            return None
+        return user
+
+    def current_user(self, request=None) -> TypeVar("User"):
+        """current_user"""
+        header = self.authorization_header(request)
+        base64 = self.extract_base64_authorization_header(header)
+        decode = self.decode_base64_authorization_header(base64)
+        user, pwd = self.extract_user_credentials(decode)
+        return self.user_object_from_credentials(user, pwd)
