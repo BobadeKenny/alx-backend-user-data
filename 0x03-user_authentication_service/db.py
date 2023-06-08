@@ -35,10 +35,10 @@ class DB:
         self._session.add(new_user)
         self._session.commit()
         return new_user
-    
+
     def find_user_by(self, **kwargs) -> User:
-        """ Takes in arbitrary keyword arguments and returns the first row
-            found in the users table as filtered by the method’s input
+        """Takes in arbitrary keyword arguments and returns the first row
+        found in the users table as filtered by the method’s input
         """
         if not kwargs:
             raise InvalidRequestError
@@ -48,7 +48,7 @@ class DB:
         if not user:
             raise NoResultFound
         return user
-    
+
     def update_user(self, user_id: int, **kwargs) -> None:
         """Locates the user to update, then will update the user’s attributes
         as passed in the method’s arguments then commit changes to the database
