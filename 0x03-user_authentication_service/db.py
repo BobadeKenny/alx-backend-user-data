@@ -41,14 +41,14 @@ class DB:
         """Takes in arbitrary keyword arguments and returns the first row
         found in the users table as filtered by the method’s input arguments.
         """
-        if not kwargs:
-            raise InvalidRequestError
-        if not all(hasattr(User, k) for k in kwargs):
-            raise InvalidRequestError
-        user = self._session.query(User).filter_by(**kwargs).first()
-        if user is None:
-            raise NoResultFound
-        return user
+        all_users = self._session.query(User)
+        for k, v in kwargs.items():
+            if k not in User.__dict__:
+                raise InvalidRequestError
+            for usr in all_users:
+                if getattr(usr, k) == v:
+                    return usr
+        raise NoResultFound
 
     def update_user(self, user_id: int, **kwargs) -> None:
         """Locates the user to update, then will update the user’s attributes
